@@ -31,11 +31,18 @@ async function run() {
     const featureCollection = client.db("teclinkDb").collection("feature");
     const trendingCollection = client.db("teclinkDb").collection("trending");
     const trendingsCollection = client.db("teclinkDb").collection("trendss");
+    const cartCollection = client.db("teclinkDb").collection("carts");
 
-    app.get('/feature', async(req, res) => {
-        const result = await featureCollection.find().toArray();
-        res.send(result);
+    app.get('/feature', async (req, res) => {
+      const result = await featureCollection.find().toArray();
+      res.send(result);
     })
+
+    // app.post('/feature', async(req, res) => {
+    //     const item = req.body;
+    //     const result = await featureCollection.insertOne(item);
+    //     res.send(result);
+    // })
 
     app.get('/feature/:id', async (req, res) => {
       const id = req.params.id;
@@ -44,14 +51,26 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/trending', async(req, res) => {
-        const result = await trendingCollection.find().toArray();
-        res.send(result);
+    app.get('/trending', async (req, res) => {
+      const result = await trendingCollection.find().toArray();
+      res.send(result);
     })
 
-    app.get('/trendss', async(req, res) => {
-        const result = await trendingsCollection.find().toArray();
-        res.send(result);
+    app.get('/trendss', async (req, res) => {
+      const result = await trendingsCollection.find().toArray();
+      res.send(result);
+    })
+
+    // cart collection
+    app.get('/carts', async (req, res) => {
+      const result = await cartCollection.find().toArray();
+      res.send(result);
+    })
+
+    app.post('/carts', async (req, res) => {
+      const cartItem = req.body;
+      const result = await cartCollection.insertOne(cartItem);
+      res.send(result)
     })
 
     await client.db("admin").command({ ping: 1 });
@@ -65,9 +84,9 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('teclink is running')
+  res.send('teclink is running')
 })
 
 app.listen(port, () => {
-    console.log(`teclink is running on port ${port}`);
+  console.log(`teclink is running on port ${port}`);
 })
