@@ -27,6 +27,26 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
     // Send a ping to confirm a successful connection
+
+    const featureCollection = client.db("teclinkDb").collection("feature");
+    const trendingCollection = client.db("teclinkDb").collection("trending");
+    const trendingsCollection = client.db("teclinkDb").collection("trendss");
+
+    app.get('/feature', async(req, res) => {
+        const result = await featureCollection.find().toArray();
+        res.send(result);
+    })
+
+    app.get('/trending', async(req, res) => {
+        const result = await trendingCollection.find().toArray();
+        res.send(result);
+    })
+
+    app.get('/trendss', async(req, res) => {
+        const result = await trendingsCollection.find().toArray();
+        res.send(result);
+    })
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
