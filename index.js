@@ -35,6 +35,7 @@ async function run() {
     const trendingCollection = client.db("teclinkDb").collection("trending");
     const trendingsCollection = client.db("teclinkDb").collection("trendss");
     const cartCollection = client.db("teclinkDb").collection("carts");
+    const couponCollection = client.db("teclinkDb").collection("coupon");
 
     // jwt related api
     app.post('/jwt', async (req, res) => {
@@ -74,7 +75,7 @@ async function run() {
 
     // user related api
     app.get('/users', verifyToken, verifyAdmin, async (req, res) => {
-      console.log(req.headers);
+      // console.log(req.headers);
       const result = await userCollection.find().toArray();
       res.send(result);
     })
@@ -94,6 +95,21 @@ async function run() {
       res.send({ admin });
     })
 
+    app.get('/users/moderator/:email', verifyToken,  async (req, res) => {
+      const email = req.params.email;
+      if (email !== req.decoded.email) {
+        return res.status(403).send({ message: 'forbidden access'})
+      }
+
+      const query = { email: email };
+      const user = await userCollection.findOne(query);
+      let moderator = false;
+      if(user) {
+        moderator = user?.role === 'moderator';
+      }
+      res.send({ moderator });
+    })
+
     app.post('/users', async (req, res) => {
       const user = req.body;
       const query = { email: user.email }
@@ -111,6 +127,18 @@ async function run() {
       const updatedDoc = {
         $set: {
           role: 'admin'
+        }
+      }
+      const result = await userCollection.updateOne(filter, updatedDoc);
+      res.send(result)
+    })
+
+    app.patch('/users/moderator/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updatedDoc = {
+        $set: {
+          role: 'moderator'
         }
       }
       const result = await userCollection.updateOne(filter, updatedDoc);
@@ -189,6 +217,28 @@ async function run() {
       res.send(result)
     })
 
+    // coupon related api
+    app.post('/coupon', async (req, res) => {
+      const couponItem = req.body;
+      const result = await couponCollection.insertOne(couponItem);
+      res.send(result)
+    })
+
+    app.get('/coupon', async(req, res) => {
+      const email = req.query.email;
+      const query = { email: email }
+      const result = await couponCollection.find(query).toArray();
+      res.send(result)
+    })
+
+    app.delete('/coupon/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await couponCollection.deleteOne(query);
+      res.send(result)
+    })
+
+  
 
     // app.get('/carts', async(req, res) => {
     //   const email = req.query.email;
@@ -208,7 +258,7 @@ async function run() {
     app.post('/create-payment-intent', async(req, res) => {
       const {price} = req.body;
       const amount = parseInt(price * 100);
-      console.log(amount, 'amount inside the intent');
+      // console.log(amount, 'amount inside the intent');
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
