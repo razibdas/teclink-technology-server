@@ -238,6 +238,28 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/coupon/:id', async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      console.log(item, id);
+      const filter = { _id: new ObjectId(id)}
+      const option = { $upsert: true }
+      console.log(filter);
+      const updatedDoc = {
+        $set: {
+          ...item
+        }
+      }
+      
+      const result = await couponCollection.updateOne(filter, updatedDoc, option)
+      res.send(result)
+    });  
+
+  
+   
+    
+    
+
   
 
     // app.get('/carts', async(req, res) => {
