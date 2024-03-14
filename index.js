@@ -206,14 +206,13 @@ async function run() {
       const item = req.body;
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) }
+      const option = { $upsert: true }
       const updatedDoc = {
         $set: {
-          name: item.name,
-          price: item.price,
-          image: item.image
+          ...item
         }
       }
-      const result = await cartCollection.updateOne(filter, updatedDoc)
+      const result = await cartCollection.updateOne(filter, updatedDoc, option)
       res.send(result)
     })
 
@@ -253,7 +252,7 @@ async function run() {
       
       const result = await couponCollection.updateOne(filter, updatedDoc, option)
       res.send(result)
-    });  
+    });
 
   
    
